@@ -1,0 +1,12 @@
+{
+  "name": "DOM to Penpot",
+  "description": "Import extracted web page DOM as Penpot design objects",
+  "host": "http://localhost:4400",
+  "code": "plugin/main.js",
+  "icon": "plugin/icon.svg",
+  "permissions": [
+    "content:read",
+    "content:write",
+    "allow:downloads"
+  ]
+}

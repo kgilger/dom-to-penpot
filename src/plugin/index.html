@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DOM to Penpot</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 16px;
+      background: #1e1e2e;
+      color: #cdd6f4;
+      font-size: 13px;
+    }
+    h2 { font-size: 15px; margin-bottom: 12px; color: #cba6f7; }
+    label { display: block; margin-bottom: 4px; font-weight: 500; }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 12px;
+      border: 1px solid #45475a;
+      border-radius: 6px;
+      background: #313244;
+      color: #cdd6f4;
+      font-size: 13px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      background: #cba6f7;
+      color: #1e1e2e;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.9; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    #status {
+      margin-top: 12px;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: pre-wrap;
+      background: #313244;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .success { color: #a6e3a1; }
+    .error { color: #f38ba8; }
+    .info { color: #89b4fa; }
+  </style>
+</head>
+<body>
+  <h2>DOM to Penpot</h2>
+
+  <label for="serverUrl">Server URL</label>
+  <input id="serverUrl" type="text" value="http://localhost:4400" />
+
+  <label for="fileName">Extraction file</label>
+  <input id="fileName" type="text" value="extraction.json" placeholder="extraction.json" />
+
+  <label for="scale">Scale factor</label>
+  <input id="scale" type="number" value="1" min="0.1" max="3" step="0.1" />
+
+  <button id="importBtn">Import into Penpot</button>
+
+  <div id="status"></div>
+
+  <script>
+    const statusEl = document.getElementById('status');
+    const importBtn = document.getElementById('importBtn');
+
+    function log(msg, cls = 'info') {
+      const line = document.createElement('div');
+      line.className = cls;
+      line.textContent = msg;
+      statusEl.appendChild(line);
+      statusEl.scrollTop = statusEl.scrollHeight;
+    }
+
+    importBtn.addEventListener('click', async () => {
+      importBtn.disabled = true;
+      statusEl.innerHTML = '';
+
+      const serverUrl = document.getElementById('serverUrl').value.replace(/\/$/, '');
+      const fileName = document.getElementById('fileName').value;
+      const scale = parseFloat(document.getElementById('scale').value) || 1;
+
+      try {
+        log('Fetching extraction data...');
+        const resp = await fetch(`${serverUrl}/data/${fileName}`);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
+        const data = await resp.json();
+
+        log(`Loaded: ${data.url} (${data.viewport.width}x${data.viewport.height})`);
+        log(`Tree root: <${data.tree.tag}> with ${data.tree.children?.length || 0} children`);
+
+        // Send data to the plugin main script via postMessage
+        parent.postMessage({ type: 'import-dom', payload: { data, scale } }, '*');
+
+      } catch (err) {
+        log(`Error: ${err.message}`, 'error');
+        importBtn.disabled = false;
+      }
+    });
+
+    // Listen for progress messages from the plugin main script
+    window.addEventListener('message', (event) => {
+      const msg = event.data;
+      if (msg.type === 'import-progress') {
+        log(msg.text, 'info');
+      } else if (msg.type === 'import-done') {
+        log(msg.text, 'success');
+        importBtn.disabled = false;
+      } else if (msg.type === 'import-error') {
+        log(msg.text, 'error');
+        importBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

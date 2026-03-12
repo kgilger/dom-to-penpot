@@ -1,0 +1,22 @@
+{
+  "name": "dom-to-penpot",
+  "version": "0.1.0",
+  "description": "Extract web page DOM and import it into Penpot as design objects",
+  "type": "module",
+  "scripts": {
+    "extract": "tsx src/extractor/extract.ts",
+    "serve": "tsx src/server/index.ts",
+    "dev": "tsx watch src/server/index.ts"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "playwright": "^1.48.0"
+  },
+  "devDependencies": {
+    "@penpot/plugin-types": "^1.4.2",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}
