@@ -5,7 +5,7 @@ Outil pour extraire le DOM d'une page web (styles, positions, texte) et l'import
 ## Prérequis
 
 - **Node.js** ≥ 18 (LTS recommandé)
-- **Microsoft Edge** installé (Playwright utilise `channel: "msedge"` pour éviter de télécharger Chromium — utile derrière un proxy)
+- **Microsoft Edge** installé (Playwright utilise Edge directement, aucun navigateur supplémentaire n'est téléchargé)
 - **Penpot** accessible (instance cloud ou self-hosted)
 
 ### Installer Node.js sans droits admin (version portable)
@@ -43,12 +43,12 @@ npm --version
 ## Installation
 
 ```bash
-git clone <url-du-repo>
+git clone [<url-du-repo>](https://github.com/kgilger/dom-to-penpot.git)
 cd dom-to-penpot
 npm install
 ```
 
-> **Note proxy** : si `npx playwright install chromium` échoue à cause d'un proxy, ce n'est pas grave — le projet utilise Edge système directement.
+> **Note** : le projet utilise Edge système directement (`channel: "msedge"`). Aucun téléchargement de navigateur n'est nécessaire.
 
 ## Structure du projet
 
